@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block title %}csv import{% endblock %}
+
+{% block content %}
+  <div class="container" style="margin-top: 3rem">
+    <form action="" method="POST" enctype="multipart/form-data">
+      {{ form.as_ul }}
+      {% csrf_token %}
+      <button type="submit">送信</button>
+    </form>
+  </div>
+{% endblock %}

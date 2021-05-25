@@ -5,10 +5,12 @@ import io
 from django.urls import reverse_lazy
 from django.views import generic
 from .forms import CSVUploadForm
-from .models import Data
+from .models import Data, Category, Menu, Hospital, LinkList, Page
 import sys
 import random
 from bs4 import BeautifulSoup as bs
+from django.views.decorators.clickjacking import xframe_options_exempt
+import json
 
 csv.field_size_limit(sys.maxsize)
 
@@ -63,25 +65,64 @@ def data_import(request):
 
     params = {
         "url": data.url,
-        "html": html
+        "html": html,
+        "check": False
     }
-
     return render(request, 'data/data_import.html', params)
 
 
 def extraction(request):
     if request.method == "POST":
-        extract = "extract"
         code = request.POST["code"]
         soup = bs(request.POST["html"], 'html.parser')
         url = request.POST["url"]
         html = eval(code)
+        print("#################################################################")
         print(type(html))
+        print("#################################################################")
+        htmls = bs(str(html), 'html.parser')
+
+        category = list(Category.objects.values_list('name', flat=True))
+        print(category)
+        menu = list(Menu.objects.values_list('name', flat=True))
+        hospital = list(Hospital.objects.values_list('name', flat=True))
         params = {
             'html': str(html),
-            'check': 'extract',
-            'url': url
+            'check': "extract",
+            'url': url,
+            'category': category,
+            'menu': menu,
+            'hospital': hospital,
         }
 
         return render(request, 'data/data_import.html', params)
 
+
+def register(request):
+    if request.method == "POST":
+        url = request.POST["url"]
+        html = request.POST["html"]
+        dropdown = request.POST["dropdown"]
+        menuList = request.POST["menuList"]
+
+        if dropdown == "Category":
+            data = Category()
+            data.hospital = str(menuList)
+            data.name =
+        elif dropdown == "Menu":
+            data = Menu()
+        elif dropdown == "LinkList":
+            data = LinkList()
+        elif dropdown == "Page":
+            data = Page()
+        else:
+            pass
+
+
+        params = {
+            'html': str(html),
+            'dropdown': dropdown,
+            'url': url,
+        }
+
+        return render(request, 'data/register_done.html', params)

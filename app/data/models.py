@@ -20,7 +20,7 @@ class Hospital(models.Model):
     )
 
     def __str__(self):
-        return f"{self.name} {self.url}"
+        return self.name
 
 
 class Category(models.Model):
@@ -40,7 +40,7 @@ class Category(models.Model):
     )
 
     def __str__(self):
-        return f"{self.hospital} {self.name}"
+        return self.name
 
 
 class Menu(models.Model):
@@ -79,36 +79,7 @@ class Menu(models.Model):
     )
 
     def __str__(self):
-        return f"{self.hospital} {self.category} {self.name} {self.href} {self.url}"
-
-
-class LinkList(models.Model):
-    class Meta:
-        verbose_name = "リンクリスト"
-        verbose_name_plural = "リンクリスト"
-
-    hospital = models.ForeignKey(
-        Hospital,
-        verbose_name="関連病院名",
-        on_delete=models.CASCADE
-    )
-
-    menu = models.ForeignKey(
-        Menu,
-        verbose_name="関連メニュー",
-        on_delete=models.CASCADE
-    )
-
-    html = models.TextField(
-        verbose_name="HTML",
-    )
-
-    url = models.TextField(
-        verbose_name="URL"
-    )
-
-    def __str__(self):
-        return f"{self.hospital} {self.menu} {self.html} {self.url}"
+        return self.name
 
 
 class Page(models.Model):
@@ -137,7 +108,7 @@ class Page(models.Model):
     )
 
     def __str__(self):
-        return f"{self.hospital} {self.menu} {self.html} {self.url}"
+        return self.html
 
 
 class Data(models.Model):
@@ -156,3 +127,82 @@ class Data(models.Model):
 
     def __str__(self):
         return f"{self.url} {self.html}"
+
+
+class Doctor(models.Model):
+    class Meta:
+        verbose_name = "医師情報"
+        verbose_name_plural = "医師情報"
+
+    hospital = models.ForeignKey(
+        Hospital,
+        verbose_name="関連病院名",
+        on_delete=models.CASCADE,
+    )
+
+    title = models.CharField(
+        verbose_name="肩書き",
+        max_length=200,
+    )
+
+    name = models.CharField(
+        verbose_name="医師名",
+        max_length=50,
+    )
+
+    profile = models.TextField(
+        verbose_name="プロフィール",
+    )
+
+    image = models.TextField(
+        verbose_name="医師画像",
+    )
+
+    def __str__(self):
+        return self.name
+
+
+class Schedule(models.Model):
+    class Meta:
+        verbose_name = "診療時間と担当医師"
+        verbose_name_plural = "診療時間と担当医師"
+
+    hospital = models.ForeignKey(
+        Hospital,
+        verbose_name="関連病院名",
+        on_delete=models.CASCADE,
+    )
+
+    doctor = models.ForeignKey(
+        Doctor,
+        verbose_name="医師",
+        on_delete=models.CASCADE,
+    )
+
+    CHOICES_WEEK = (
+        ("月曜日", "Monday"),
+        ("火曜日", "Tuesday"),
+        ("水曜日", "Wednesday"),
+        ("木曜日", "Thursday"),
+        ("金曜日", "Friday"),
+    )
+
+    week = models.CharField(
+        verbose_name="曜日",
+        max_length=50,
+        choices=CHOICES_WEEK
+    )
+
+    CHOICES_AM_PM = (
+        ("午前", "午前"),
+        ("午後", "午後"),
+    )
+
+    AP = models.CharField(
+        verbose_name="午前・午後",
+        max_length=50,
+        choices=CHOICES_AM_PM
+    )
+
+    def __str__(self):
+        return str(self.doctor)

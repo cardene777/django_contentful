@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block title %}Data Import{% endblock %}
+
+{% block content %}
+    {% if check == "category" %}
+        <div class="container">
+            <div class="bg-light p-3 p-sm-5 my-4 rounded">
+                <h1 class="display-4">Data Import</h1>
+                <hr class="my-4">
+                <p>データ登録分野を選択</p>
+            </div>
+        </div>
+        <div class="container">
+            <form action="{% url 'data:data_choice' %}" method="post" style="margin-top: 2rem">
+                {% csrf_token %}
+                <label for="category">分野</label><br>
+                <select name="category" id="category" class="form-select form-select-lg mb-3"
+                        aria-label=".form-select-lg example">
+                    <option disabled selected>選択してください</option>
+                    {% for category in categories %}
+                        <option value="{{ category }}">{{ category }}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit" class="btn btn-secondary" style="margin-top: 1rem">選択</button>
+            </form>
+        </div>
+    {% elif check == "choice" %}
+        <div class="container">
+            <div class="bg-light p-3 p-sm-5 my-4 rounded">
+                <h1 class="display-4">Data Import</h1>
+                <hr class="my-4">
+                <p>データ登録</p>
+            </div>
+        </div>
+        <div class="container">
+            <form action="{% url 'data:register' %}"  method="post">
+                {% csrf_token %}
+                {% for form in forms %}
+                    <p>{{ form }}</p>
+                {% endfor %}
+                <input hidden type="text" id="model" name="model" value="{{ model }}">
+                <input hidden type="text" id="form" name="form" value="{{ form }}">
+                <button type="submit" class="btn btn-secondary" style="margin-top: 2rem; margin-bottom: 3rem" >登録</button>
+            </form>
+        </div>
+    {% endif %}
+{% endblock %}

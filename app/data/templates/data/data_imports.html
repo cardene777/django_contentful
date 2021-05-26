@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+
+{% block title %}Data Import{% endblock %}
+
+{% block content %}
+
+
+<!--    <div class="container" style="margin-top: 3rem">-->
+<!--        <form action="{% url 'data:data_import' %}"  method="post">-->
+<!--            {% csrf_token %}-->
+<!--            <label for="url" class="form-label">URL</label>-->
+<!--            <input type="text" name="url" id="url" placeholder="URL" class="form-control" aria-describedby="url-block">-->
+<!--            <div id="url-block" class="form-text">-->
+<!--                <p>URLを知っていれば入力してください。</p>-->
+<!--            </div>-->
+<!--            <button type="submit" class="btn btn-secondary">送信</button>-->
+<!--        </form>-->
+<!--        <hr>-->
+<!--    </div>-->
+
+<!--    <div class="container" style="margin-top: 3rem">-->
+<!--        <h2>URL</h2>-->
+<!--        <hr>-->
+<!--        <a href="{{ url }}" target="_blank" rel="noopener noreferrer">{{ url }}</a>-->
+<!--        <hr>-->
+<!--        <h2>HTML</h2>-->
+<!--        <hr>-->
+<!--        <form action="{% url 'data:extraction' %}"  method="post">-->
+<!--            {% csrf_token %}-->
+<!--            <label for="code" class="form-label">抽出</label>-->
+<!--            <input type="text" name="code" id="code" placeholder="コード" class="form-control" aria-describedby="code-block">-->
+<!--            <input hidden type="text" name="html" value="{{ html }}">-->
+<!--            <input hidden type="text" name="url" value="{{ url }}">-->
+<!--            <div id="code-block" class="form-text">-->
+<!--                <p>コードを入力してください。</p>-->
+<!--            </div>-->
+<!--            <button type="submit" class="btn btn-secondary">抽出</button>-->
+<!--        </form>-->
+<!--        <hr>-->
+
+<!--        <form action="{% url 'data:register' %}" method="post" style="margin-top: 2rem">-->
+<!--            {% csrf_token %}-->
+<!--            <h3 for="code" class="form-label">データを登録！</h3>-->
+<!--            <div>-->
+<!--                <label for="dropdown">登録先</label><br>-->
+<!--                <select name="dropdown" id="dropdown" onchange="CreateMenu(this.value)" class="form-select" aria-label="Default select example">-->
+<!--                    <option disabled selected>選択してください</option>-->
+<!--                    <option value="Category">カテゴリ</option>-->
+<!--                    <option value="Menu">メニュー</option>-->
+<!--                    <option value="LinkList">リンクリスト</option>-->
+<!--                    <option value="Page">ページ</option>-->
+<!--                </select>-->
+<!--            </div>-->
+<!--            <div style="margin-top: 1rem">-->
+<!--                <label for="menuList">関連フィールド</label><br>-->
+<!--                <select name="menuList" id="menuList" disabled>-->
+<!--                    <option disabled selected>選択してください</option>-->
+<!--                </select>-->
+<!--            </div>-->
+<!--            <input hidden type="text" name="html" value="{{ html }}">-->
+<!--            <input hidden type="text" name="url" value="{{ url }}">-->
+<!--            <button type="submit" class="btn btn-secondary" style="margin-top: 1rem">登録</button>-->
+<!--        </form>-->
+
+
+<!--        <hr>-->
+<!--          <p>{{ html | safe | escape  }}</p>-->
+<!--        <hr>-->
+
+<!--        <h3>HTMLコード</h3>-->
+<!--        <p>{{ html | linebreaksbr }}</p>-->
+<!--        <br>-->
+<!--    </div>-->
+<!--{{hospital|json_script:"hospital_js"}}-->
+<!--{{category|json_script:"category_js"}}-->
+<!--{{menu|json_script:"menu_js"}}-->
+
+<!--<script>-->
+<!--    const category = JSON.parse(document.getElementById('category_js').textContent);-->
+<!--    const menu = JSON.parse(document.getElementById('menu_js').textContent);-->
+<!--    const hospital = JSON.parse(document.getElementById('hospital_js').textContent);-->
+<!--    const Menu =-->
+<!--        {-->
+<!--            "Category": hospital,-->
+<!--            "Menu": category,-->
+<!--            "LinkList": menu,-->
+<!--            "Page": menu-->
+<!--        };-->
+
+
+<!--    function CreateMenu(selectGenre){-->
+
+<!--      let menuList = document.getElementById('menuList');-->
+<!--      menuList.disabled = false;-->
+<!--      menuList.innerHTML = '';-->
+<!--      let option = document.createElement('option');-->
+<!--      option.innerHTML = '料理を選択してください';-->
+<!--      option.defaultSelected = true;-->
+<!--      option.disabled = true;-->
+<!--      menuList.appendChild(option);-->
+
+<!--      Menu[selectGenre].forEach( menu => {-->
+<!--        let option = document.createElement('option');-->
+<!--        option.innerHTML = menu;-->
+<!--        menuList.appendChild(option);-->
+<!--      });-->
+<!--    }-->
+</script>
+{% endblock %}

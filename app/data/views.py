@@ -4,8 +4,8 @@ import csv
 import io
 from django.urls import reverse_lazy
 from django.views import generic
-from .forms import CSVUploadForm
-from .models import Data, Category, Menu, Hospital, LinkList, Page
+from .forms import CSVUploadForm, DoctorForm, ScheduleForm
+from .models import Data, Category, Menu, Hospital, Page, Doctor, Schedule
 import sys
 import random
 from bs4 import BeautifulSoup as bs
@@ -16,10 +16,16 @@ csv.field_size_limit(sys.maxsize)
 
 
 class Home(generic.TemplateView):
+    """
+    home page
+    """
     template_name = "data/home.html"
 
 
 class PostImport(generic.FormView):
+    """
+    csv file import
+    """
     template_name = 'data/import.html'
     success_url = reverse_lazy('data:home')
     form_class = CSVUploadForm
@@ -38,6 +44,9 @@ class PostImport(generic.FormView):
 
 
 class CheckData(generic.ListView):
+    """
+    data list & search data
+    """
     template_name = 'data/check.html'
     model = Data
     context_object_name = 'datas'
@@ -53,22 +62,42 @@ class CheckData(generic.ListView):
         return datas
 
 
-def data_import(request):
+def data_choice(request):
+    """
+    data category choice
+    :param request:
+    :return:
+    """
     if request.method == "POST":
-        url = request.POST["url"]
-        data = Data.objects.get(url=url)
-
+        category = request.POST["category"]
+        if category == "医師情報":
+            check = "choice"
+            form = DoctorForm()
+            params = {
+                "check": check,
+                "forms": form,
+                "model": "Doctor",
+                "form": "DoctorForm"
+            }
+        elif category == "診療時間と担当医師":
+            check = "choice"
+            form = ScheduleForm()
+            params = {
+                "check": check,
+                "forms": form,
+                "model": "Schedule",
+                "form": "ScheduleForm"
+            }
     else:
-        datas = Data.objects.all()
-        data = random.choice(datas)
-    html = str(bs(data.html, 'html.parser'))
+        check = "data_import"
+        categories = ["医師情報", "診療時間と担当医師"]
 
-    params = {
-        "url": data.url,
-        "html": html,
-        "check": False
-    }
-    return render(request, 'data/data_import.html', params)
+        params = {
+            "check": "category",
+            "categories": categories
+        }
+
+    return render(request, 'data/data_choice.html', params)
 
 
 def extraction(request):
@@ -95,34 +124,15 @@ def extraction(request):
             'hospital': hospital,
         }
 
-        return render(request, 'data/data_import.html', params)
+        return render(request, 'data/data_imports.html', params)
 
 
 def register(request):
     if request.method == "POST":
-        url = request.POST["url"]
-        html = request.POST["html"]
-        dropdown = request.POST["dropdown"]
-        menuList = request.POST["menuList"]
+        # obj = eval(request.POST["model"])
+        # friend = eval(request.POST, instance=obj)
+        model = eval(request.POST["model"])()
+        data = eval(request.POST["form"])(request.POST, instance=model)
+        data.save()
 
-        if dropdown == "Category":
-            data = Category()
-            data.hospital = str(menuList)
-            data.name =
-        elif dropdown == "Menu":
-            data = Menu()
-        elif dropdown == "LinkList":
-            data = LinkList()
-        elif dropdown == "Page":
-            data = Page()
-        else:
-            pass
-
-
-        params = {
-            'html': str(html),
-            'dropdown': dropdown,
-            'url': url,
-        }
-
-        return render(request, 'data/register_done.html', params)
+        return render(request, 'data/data_choice.html')

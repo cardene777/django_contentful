@@ -11,8 +11,10 @@ import random
 from bs4 import BeautifulSoup as bs
 from django.views.decorators.clickjacking import xframe_options_exempt
 import json
+from django.utils.datastructures import MultiValueDictKeyError
 
 csv.field_size_limit(sys.maxsize)
+CATEGORIES = Category.objects.values_list("name", flat=True)
 
 
 class Home(generic.TemplateView):
@@ -69,70 +71,120 @@ def data_choice(request):
     :return:
     """
     if request.method == "POST":
+        # 検索
+        try:
+            search = request.POST["search"]
+            url = request.POST["url"]
+            urls = Data.objects.get(url=url)
+            params = {
+                "check": "category",
+                "categories": CATEGORIES,
+                "url": urls.url,
+                "html": urls.html
+            }
+            return render(request, 'data/data_choice.html', params)
+        except MultiValueDictKeyError:
+            pass
+        # カテゴリごとに渡すデータを変更。
         category = request.POST["category"]
+        url = request.POST["url"]
+        html = request.POST["html"]
         if category == "医師情報":
-            check = "choice"
-            form = DoctorForm()
-            params = {
-                "check": check,
-                "forms": form,
-                "model": "Doctor",
-                "form": "DoctorForm"
-            }
+            forms = DoctorForm()
+            model = "Doctor"
+            form = "DoctorForm"
         elif category == "診療時間と担当医師":
-            check = "choice"
-            form = ScheduleForm()
-            params = {
-                "check": check,
-                "forms": form,
-                "model": "Schedule",
-                "form": "ScheduleForm"
-            }
+            forms = ScheduleForm()
+            model = "Schedule"
+            form = "ScheduleForm"
+        params = {
+            "check": "choice",
+            "forms": forms,
+            "model": model,
+            "form": form,
+            "url": url,
+            "html": html
+        }
     else:
         check = "data_import"
-        categories = ["医師情報", "診療時間と担当医師"]
-
+        datas = Data.objects.all()
+        data = random.choice(datas)
         params = {
             "check": "category",
-            "categories": categories
+            "categories": CATEGORIES,
+            "url":data.url,
+            "html": data.html
         }
 
     return render(request, 'data/data_choice.html', params)
 
 
-def extraction(request):
-    if request.method == "POST":
-        code = request.POST["code"]
-        soup = bs(request.POST["html"], 'html.parser')
-        url = request.POST["url"]
-        html = eval(code)
-        print("#################################################################")
-        print(type(html))
-        print("#################################################################")
-        htmls = bs(str(html), 'html.parser')
-
-        category = list(Category.objects.values_list('name', flat=True))
-        print(category)
-        menu = list(Menu.objects.values_list('name', flat=True))
-        hospital = list(Hospital.objects.values_list('name', flat=True))
-        params = {
-            'html': str(html),
-            'check': "extract",
-            'url': url,
-            'category': category,
-            'menu': menu,
-            'hospital': hospital,
-        }
-
-        return render(request, 'data/data_imports.html', params)
-
-
 def register(request):
+    def set_hospital_name(url):
+        urls = {
+            "http://fujimoto.com": "藤元メディカルシステム",
+            "http://fujimoto.or.jp": "藤元メディカルシステム",
+            "http://fgh.fujimoto.com": "藤元総合病院",
+            "http://fujimoto.or.jp/fujimoto": "藤元病院",
+            "http://fujimoto.or.jp/green": "グリーンホーム",
+            "http://fujimoto.ac.jp": "藤元メディカルシステム付属医療専門学校",
+            "http://fujimoto.or.jp/kensin/hayasuzu": "藤元総合病院",
+            "http://fujimoto.or.jp/kensin/central": "藤元総合病院",
+            "http://fujimoto.or.jp/daigo": "大吾病院",
+            "http://hoshii.fujimoto.com": "星井眼科",
+            "http://joryokukai.com": "社会福祉法人常緑会",
+            "http://ichijukai.com": "社会福祉法人星空の都",
+            "http://recruit.fujimoto.com": "採用情報"
+        }
+        split_url = url.split("/")
+        split_url[2] = split_url[2].replace("www.", "")
+        for index in range(len(split_url)):
+            new_url = "/".join(split_url[: len(split_url) - index])
+            try:
+                hospital_name = urls[new_url]
+                break
+            except:
+                continue
+        else:
+            hospital_name = None
+        return hospital_name
     if request.method == "POST":
-        # obj = eval(request.POST["model"])
-        # friend = eval(request.POST, instance=obj)
         model = eval(request.POST["model"])()
-        data = eval(request.POST["form"])(request.POST, instance=model)
+        url = set_hospital_name(request.POST["url"])
+        request_post = request.POST.copy()
+        request_post["hospital"] = Hospital.objects.filter(name=url).values_list('name', flat=True)[0]
+        data = eval(request_post["form"])(request.POST, instance=model)
+        print(request_post)
         data.save()
 
-        return render(request, 'data/data_choice.html')
+        params = {
+            "check": "category",
+            "categories": CATEGORIES,
+            "url": request.POST["url"],
+            "html": request.POST["html"]
+        }
+        return render(request, 'data/data_choice.html', params)
+    else:
+        return render(request, 'data/data_register.html')
+
+
+def extraction(request):
+    if request.method == "POST":
+        check = request.POST['check']
+        forms = request.POST['forms']
+        model = request.POST['model']
+        form = request.POST['form']
+        url = request.POST['url']
+        html = request.POST['html']
+        print("check", check)
+
+        params = {
+            "check": check,
+            "forms": forms,
+            "model": model,
+            "form": form,
+            "url": url,
+            "html": html
+        }
+
+        return render(request, 'data/data_choice.html', params)

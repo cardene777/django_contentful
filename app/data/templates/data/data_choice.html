@@ -1,16 +1,39 @@
 {% extends 'base.html' %}
+{% load static %}
+
+{% block head %}
+    <link rel="stylesheet" href="{% static 'data/css/data_register.css' %}">
+{% endblock %}
 
 {% block title %}Data Import{% endblock %}
 
 {% block content %}
-    {% if check == "category" %}
-        <div class="container">
-            <div class="bg-light p-3 p-sm-5 my-4 rounded">
-                <h1 class="display-4">Data Import</h1>
-                <hr class="my-4">
-                <p>データ登録分野を選択</p>
-            </div>
+    <div class="container">
+        <div class="bg-light p-3 p-sm-5 my-4 rounded">
+            <a href="{% url 'data:register' %}" class="register-right-btn btn-real-dent"
+                onclick='return confirm("登録を完了しますか？");'>
+                <i class="far fa-check-circle"></i>
+            </a>
+            <h1 class="display-4">データ登録
+            </h1>
+            <hr class="my-4">
+            <p>データを登録</p>
         </div>
+    </div>
+    <div class="container" style="margin-top: 3rem">
+        <form action="{% url 'data:data_choice' %}"  method="post">
+            {% csrf_token %}
+            <label for="url" class="form-label">URL</label>
+            <input type="text" name="url" id="url" placeholder="URL" class="form-control" aria-describedby="url-block">
+            <input hidden type="text" name="search" value="search">
+            <div id="url-block" class="form-text">
+                <p>URLを知っていれば入力してください。</p>
+            </div>
+            <button type="submit" class="btn btn-secondary">送信</button>
+        </form>
+        <hr>
+    </div>
+    {% if check == "category" %}
         <div class="container">
             <form action="{% url 'data:data_choice' %}" method="post" style="margin-top: 2rem">
                 {% csrf_token %}
@@ -22,27 +45,40 @@
                         <option value="{{ category }}">{{ category }}</option>
                     {% endfor %}
                 </select>
+                <input hidden type="text" name="url" value="{{ url }}">
+                <input hidden type="text" name="html" value="{{ html }}">
                 <button type="submit" class="btn btn-secondary" style="margin-top: 1rem">選択</button>
             </form>
         </div>
     {% elif check == "choice" %}
         <div class="container">
-            <div class="bg-light p-3 p-sm-5 my-4 rounded">
-                <h1 class="display-4">Data Import</h1>
-                <hr class="my-4">
-                <p>データ登録</p>
-            </div>
+            <form action="{% url 'data:extraction' %}"  method="post">
+                {% csrf_token %}
+                <label for="code" class="form-label">抽出</label>
+                <input type="text" name="scraping" id="scraping" placeholder="コード" class="form-control" aria-describedby="code-block">
+                <div id="code-block" class="form-text">
+                    <p>コードを入力してください。</p>
+                </div>
+{#                 #}
+               <button type="submit" class="btn btn-secondary">抽出</button>
+            </form>
         </div>
+        <hr>
         <div class="container">
             <form action="{% url 'data:register' %}"  method="post">
                 {% csrf_token %}
+                <input hidden type="text" id="model" name="model" value="{{ model }}">
+                <input hidden type="text" id="form" name="form" value="{{ form }}">
+                <input hidden type="text" id="url" name="url" value="{{ url }}">
+                <input hidden type="text" id="html" name="html" value="{{ html }}">
                 {% for form in forms %}
                     <p>{{ form }}</p>
                 {% endfor %}
-                <input hidden type="text" id="model" name="model" value="{{ model }}">
-                <input hidden type="text" id="form" name="form" value="{{ form }}">
                 <button type="submit" class="btn btn-secondary" style="margin-top: 2rem; margin-bottom: 3rem" >登録</button>
             </form>
         </div>
     {% endif %}
+    <hr>
+        <p>{{ html | safe | escape  }}</p>
+    <hr>
 {% endblock %}

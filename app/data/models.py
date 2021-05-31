@@ -28,11 +28,11 @@ class Category(models.Model):
         verbose_name = "カテゴリ"
         verbose_name_plural = "カテゴリ"
 
-    hospital = models.ForeignKey(
-        Hospital,
-        verbose_name="関連病院名",
-        on_delete=models.CASCADE
-    )
+    # hospital = models.ForeignKey(
+    #     Hospital,
+    #     verbose_name="関連病院名",
+    #     on_delete=models.CASCADE
+    # )
 
     name = models.CharField(
         verbose_name="カテゴリ名",
@@ -93,9 +93,9 @@ class Page(models.Model):
         on_delete=models.CASCADE
     )
 
-    menu = models.ForeignKey(
-        Menu,
-        verbose_name="関連メニュー",
+    category = models.ForeignKey(
+        Category,
+        verbose_name="関連カテゴリ",
         on_delete=models.CASCADE
     )
 

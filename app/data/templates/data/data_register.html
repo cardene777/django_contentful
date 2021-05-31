@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block head %}
+    <link rel="stylesheet" href="{% static 'data/css/data_register.css' %}">
+{% endblock %}
+
+{% block title %}Data Register{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="bg-light p-3 p-sm-5 my-4 rounded">
+            <h1 class="display-4">データ登録</h1>
+            <hr class="my-4">
+            <p>データを登録</p>
+        </div>
+        </div>
+    <div class="container register-btn">
+        <p><strong>データを登録する</strong></p>
+        <a href="{% url 'data:data_choice' %}" class="btn-real-dent">
+            <i class="fas fa-database"></i>
+        </a>
+    </div>
+{% endblock %}

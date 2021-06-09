@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Choice Hospital{% endblock %}
+
+{% block content %}
+    <div class="container">
+            <div class="bg-light p-3 p-sm-5 my-4 rounded">
+                <h1 class="display-4">病院選択</h1>
+                <hr class="my-4">
+                <p>病院を選択してください。</p>
+            </div>
+        </div>
+    <div class="container">
+        <form action="{% url 'data:choice_category' %}"  method="post">
+            {% csrf_token %}
+            <select name="hospital" class="form-select form-select-lg mb-3" aria-label=".form-select-lg example">
+                <option selected >
+                    病院を選択してください。
+                </option>
+                {% for hospital in hospitals %}
+                    <option value="{{ hospital }}">{{ hospital }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit" class="btn btn-secondary" style="margin-bottom: 3rem">
+                選択
+            </button>
+            <br>
+        </form>
+    </div>
+{% endblock %}

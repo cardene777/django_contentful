@@ -4,17 +4,19 @@ import csv
 import io
 from django.urls import reverse_lazy
 from django.views import generic
-from .forms import CSVUploadForm, DoctorForm, ScheduleForm
-from .models import Data, Category, Menu, Hospital, Page, Doctor, Schedule
+from .forms import CSVUploadForm, DoctorForm, ScheduleForm, PageForm
+from .models import Data, Category, Hospital, Page, Doctor, DepartmentSchedule
 import sys
 import random
 from bs4 import BeautifulSoup as bs
-from django.views.decorators.clickjacking import xframe_options_exempt
 import json
 from django.utils.datastructures import MultiValueDictKeyError
 
 csv.field_size_limit(sys.maxsize)
-CATEGORIES = Category.objects.values_list("name", flat=True)
+
+FORMS: dict = {
+            "診療科・部門": ["ページ", "医師情報", "診療時間"]
+        }
 
 
 class Home(generic.TemplateView):
@@ -41,6 +43,7 @@ class PostImport(generic.FormView):
             data, created = Data.objects.get_or_create(pk=index)
             data.url = row[0]
             data.html = row[1]
+            data.check = "no"
             data.save()
         return super().form_valid(form)
 
@@ -60,7 +63,7 @@ class CheckData(generic.ListView):
         length = datas.count()
         if 'q' in self.request.GET and self.request.GET['q'] is not None:
             q = self.request.GET['q']
-            datas = datas.filter(url__icontains=q)
+            datas = datas.filter(check="no").filter(url__icontains=q)
         return datas
 
 
@@ -71,49 +74,53 @@ def data_choice(request):
     :return:
     """
     if request.method == "POST":
-        # 検索
-        try:
-            search = request.POST["search"]
-            url = request.POST["url"]
-            urls = Data.objects.get(url=url)
-            params = {
-                "check": "category",
-                "categories": CATEGORIES,
-                "url": urls.url,
-                "html": urls.html
+        if request.POST["message"] == "choice_category":
+            url: str = request.POST["category"]
+            datas = Data.objects.filter(url__contains=url)
+            params: dict = {
+                "message": "choice_data",
+                "datas": datas
             }
-            return render(request, 'data/data_choice.html', params)
-        except MultiValueDictKeyError:
-            pass
-        # カテゴリごとに渡すデータを変更。
-        category = request.POST["category"]
-        url = request.POST["url"]
-        html = request.POST["html"]
-        if category == "医師情報":
-            forms = DoctorForm()
-            model = "Doctor"
-            form = "DoctorForm"
-        elif category == "診療時間と担当医師":
-            forms = ScheduleForm()
-            model = "Schedule"
-            form = "ScheduleForm"
-        params = {
-            "check": "choice",
-            "forms": forms,
-            "model": model,
-            "form": form,
+        elif request.POST["message"] == "choice_data":
+            url: str = request.POST["data"]
+            data = Data.objects.get(url=url)
+            params: dict = {
+                "message": "get_data",
+                "data": data
+            }
+        elif request.POST["message"] == "choice_form":
+            url: str = request.POST["url"]
+            html: str = request.POST["html"]
+            html: str = str(bs(html, 'html.parser'))
+            form: str = request.POST["register_form"]
+            forms = eval(form)()
+            params: dict = {
+                "message": "select_form",
+                "url": url,
+                "html": html,
+                "forms": forms,
+                "register_form": form,
+            }
+
+    return render(request, 'data/data_choice.html', params)
+
+
+def extract(request):
+    if request.method == "POST":
+        code: str = request.POST["code"]
+        url: str = request.POST["url"]
+        html: str = request.POST["html"]
+        html = bs(html, 'html.parser')
+        new_html = eval(code)
+        register_form = request.POST["register_form"]
+        forms = eval(register_form)()
+        params: dict = {
+            "message": "extract_html",
             "url": url,
-            "html": html
-        }
-    else:
-        check = "data_import"
-        datas = Data.objects.all()
-        data = random.choice(datas)
-        params = {
-            "check": "category",
-            "categories": CATEGORIES,
-            "url":data.url,
-            "html": data.html
+            "html": str(html),
+            "new_html": new_html,
+            "register_form": register_form,
+            "forms": forms
         }
 
     return render(request, 'data/data_choice.html', params)
@@ -121,6 +128,11 @@ def data_choice(request):
 
 def register(request):
     def set_hospital_name(url):
+        """
+        病院名とURLの変換
+        :param url:
+        :return:
+        """
         urls = {
             "http://fujimoto.com": "藤元メディカルシステム",
             "http://fujimoto.or.jp": "藤元メディカルシステム",
@@ -149,42 +161,144 @@ def register(request):
             hospital_name = None
         return hospital_name
     if request.method == "POST":
-        model = eval(request.POST["model"])()
-        url = set_hospital_name(request.POST["url"])
+        model: dict = {
+            "DoctorForm": Doctor,
+            "ScheduleForm": DepartmentSchedule,
+            "PageForm": Page
+        }
         request_post = request.POST.copy()
-        request_post["hospital"] = Hospital.objects.filter(name=url).values_list('name', flat=True)[0]
-        data = eval(request_post["form"])(request.POST, instance=model)
-        print(request_post)
+        request_post["hospital"] = set_hospital_name(request_post["url"])
+        select_model = model[request.POST["register_form"]]
+        data = eval(request.POST["register_form"])(request.POST, instance=select_model())
+        # data = select_model(request.POST)
         data.save()
 
-        params = {
-            "check": "category",
-            "categories": CATEGORIES,
-            "url": request.POST["url"],
-            "html": request.POST["html"]
+        url: str = request.POST["url"].replace("\r", "").replace("\n", "")
+        data = Data.objects.get(url=url)
+        params: dict = {
+            "message": "get_data",
+            "data_check": "on",
+            "data": data
         }
+
+
+        # model = eval(request.POST["model"])()
+        # url = set_hospital_name(request.POST["url"])
+        # request_post = request.POST.copy()
+        # request_post["hospital"] = Hospital.objects.filter(name=url).values_list('name', flat=True)[0]
+        # data = eval(request_post["form"])(request.POST, instance=model)
+        # print(request_post)
+        # data.save()
+
         return render(request, 'data/data_choice.html', params)
     else:
-        return render(request, 'data/data_register.html')
-
-
-def extraction(request):
-    if request.method == "POST":
-        check = request.POST['check']
-        forms = request.POST['forms']
-        model = request.POST['model']
-        form = request.POST['form']
-        url = request.POST['url']
-        html = request.POST['html']
-        print("check", check)
-
-        params = {
-            "check": check,
-            "forms": forms,
-            "model": model,
-            "form": form,
-            "url": url,
-            "html": html
+        categories: list = Category.objects.all()
+        params: dict = {
+            "categories": categories,
         }
+        return render(request, 'data/data_register.html', params)
 
-        return render(request, 'data/data_choice.html', params)
+
+def choice_hospital(request):
+    """
+    choice hospital name
+    """
+    hospitals = Hospital.objects.all()
+    params: dict = {
+        "hospitals": hospitals
+    }
+    return render(request, 'data/choice_hospital.html', params)
+
+
+def choice_category(request):
+    """
+    choice hospital category
+    """
+    hospital_id: int = Hospital.objects.filter(name=request.POST["hospital"])[0].id
+    categories: list = Category.objects.filter(hospital=hospital_id)
+    params: dict = {
+        "categories": categories,
+    }
+    return render(request, 'data/choice_category.html', params)
+
+
+def choice_url(request):
+    category: str = request.POST["category"]
+    url: str = Category.objects.filter(name=category)[0].url
+    urls: list = list(Data.objects.filter(url__contains=url).values_list("url", flat=True))
+    params: dict = {
+        "urls": urls,
+        "category": category
+    }
+    return render(request, 'data/choice_url.html', params)
+
+
+def choice_form(request):
+    if request.method == "POST":
+        category: str = request.POST["category"]
+        select_forms: list = FORMS[category]
+        url: str = request.POST["url"]
+        if request.POST["message"] == "extract":
+            html: str = request.POST["html"]
+            html: str = bs(html, 'html.parser')
+            extract_html = str(str(eval(request.POST["code"]))[1:-1])
+        else:
+            html: str = Data.objects.filter(url=url)[0].html
+            extract_html: str = "none"
+        params: dict = {
+            "select_forms": select_forms,
+            "url": url,
+            "html": html,
+            "category": category,
+            "extract_html": extract_html
+        }
+        return render(request, 'data/choice_form.html', params)
+
+
+def data_register(request):
+    if request.method == "POST":
+        if request.POST["message"] == "register":
+            model: dict = {
+                "DoctorForm": Doctor(),
+                "ScheduleForm": DepartmentSchedule(),
+                "PageForm": Page()
+            }
+            one_form: str = request.POST["one_form"]
+            select_model: str = model[one_form]
+            data = eval(one_form)(request.POST, instance=select_model)
+            data.save()
+
+            category: str = Category.objects.filter(id=request.POST["category"])[0].name
+            select_forms: list = FORMS[category]
+            url: str = request.POST["url"].replace("\r", "").replace("\n", "")
+            html: str = Data.objects.filter(url=url)[0].html
+            extract_html: str = "none"
+            params: dict = {
+                "select_forms": select_forms,
+                "url": url,
+                "html": html,
+                "category": category,
+                "extract_html": extract_html
+            }
+            return render(request, 'data/choice_form.html', params)
+
+        select_form: dict = {
+            "ページ": "PageForm",
+            "医師情報": "DoctorForm",
+            "診療時間": "ScheduleForm"
+        }
+        category: str = request.POST["category"]
+        url: str = request.POST["url"]
+        html: str = request.POST["html"]
+        form: str = request.POST["select_form"]
+        forms: str = eval(select_form[form])()
+        one_form: str = select_form[form]
+        params: dict = {
+            "url": url,
+            "html": html,
+            "category": category,
+            "forms": forms,
+            "one_form": one_form
+        }
+    return render(request, 'data/data_register.html', params)
+

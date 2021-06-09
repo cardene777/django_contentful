@@ -1,5 +1,5 @@
 from django import forms
-from .models import Doctor, Schedule
+from .models import Doctor, DepartmentSchedule, Page, Tag
 
 
 class CSVUploadForm(forms.Form):
@@ -43,7 +43,7 @@ class DoctorForm(forms.ModelForm):
 
 class ScheduleForm(forms.ModelForm):
     class Meta:
-        model = Schedule
+        model = DepartmentSchedule
         fields = ('hospital', 'doctor', 'week', 'AP')
 
     def __init__(self, *args, **kwargs):
@@ -67,3 +67,50 @@ class ScheduleForm(forms.ModelForm):
         self.fields['AP'].widget.attrs['id'] = 'AP'
         self.fields['AP'].widget.attrs['name'] = 'AP'
         self.fields['AP'].widget.attrs['placeholder'] = '午前・午後'
+
+
+class PageForm(forms.ModelForm):
+    class Meta:
+        model = Page
+        fields = ('hospital', 'category', 'html', 'url', 'tag')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['hospital'].widget.attrs['class'] = 'form-control'
+        self.fields['hospital'].widget.attrs['id'] = 'hospital'
+        self.fields['hospital'].widget.attrs['name'] = 'hospital'
+        self.fields['hospital'].widget.attrs['placeholder'] = '病院名'
+
+        self.fields['category'].widget.attrs['class'] = 'form-control'
+        self.fields['category'].widget.attrs['id'] = 'category'
+        self.fields['category'].widget.attrs['name'] = 'category'
+        self.fields['category'].widget.attrs['placeholder'] = 'カテゴリ'
+
+        self.fields['html'].widget.attrs['class'] = 'form-control'
+        self.fields['html'].widget.attrs['id'] = 'html'
+        self.fields['html'].widget.attrs['name'] = 'html'
+        self.fields['html'].widget.attrs['placeholder'] = 'HTML'
+
+        self.fields['url'].widget.attrs['class'] = 'form-control'
+        self.fields['url'].widget.attrs['id'] = 'url'
+        self.fields['url'].widget.attrs['name'] = 'url'
+        self.fields['url'].widget.attrs['placeholder'] = 'URL'
+
+        self.fields['tag'].widget.attrs['class'] = 'form-control'
+        # self.fields['tag'].widget.attrs['id'] = 'tag'
+        self.fields['tag'].widget.attrs['name'] = 'tag'
+        self.fields['tag'].widget.attrs['placeholder'] = 'タグ'
+
+
+class TagFrom(forms.ModelForm):
+    class Meta:
+        model = Tag
+        fields = ('name',)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['name'].widget.attrs['class'] = 'form-control'
+        self.fields['name'].widget.attrs['id'] = 'name'
+        self.fields['name'].widget.attrs['name'] = 'name'
+        self.fields['name'].widget.attrs['placeholder'] = 'タグ名'
+

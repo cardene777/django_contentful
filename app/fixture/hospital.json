@@ -1,0 +1,82 @@
+[
+  {
+    "model": "data.hospital",
+    "pk": 1,
+    "fields": {
+      "name": "藤元メディカルシステム",
+      "url": "http://fujimoto.com"
+    }
+  },
+  {
+    "model": "data.hospital",
+    "pk": 2,
+    "fields": {
+      "name": "藤元総合病院",
+      "url": "http://fgh.fujimoto.com"
+    }
+  },
+  {
+    "model": "data.hospital",
+    "pk": 3,
+    "fields": {
+      "name": "藤元病院",
+      "url": "http://fujimoto.or.jp/fujimoto"
+    }
+  },
+  {
+    "model": "data.hospital",
+    "pk": 4,
+    "fields": {
+      "name": "大吾病院",
+      "url": "http://fujimoto.or.jp/daigo"
+    }
+  },
+  {
+    "model": "data.hospital",
+    "pk": 5,
+    "fields": {
+      "name": "星井眼科",
+      "url": "http://hoshii.fujimoto.com"
+    }
+  },
+  {
+    "model": "data.hospital",
+    "pk": 6,
+    "fields": {
+      "name": "グリーンホーム",
+      "url": "http://fujimoto.or.jp/green"
+    }
+  },
+  {
+    "model": "data.hospital",
+    "pk": 7,
+    "fields": {
+      "name": "藤元メディカルシステム付属医療専門学校",
+      "url": "http://fujimoto.ac.jp"
+    }
+  },
+  {
+    "model": "data.hospital",
+    "pk": 8,
+    "fields": {
+      "name": "社会福祉法人常緑会",
+      "url": "http://joryokukai.com"
+    }
+  },
+  {
+    "model": "data.hospital",
+    "pk": 9,
+    "fields": {
+      "name": "社会福祉法人星空の都",
+      "url": "http://ichijukai.com"
+    }
+  },
+  {
+    "model": "data.hospital",
+    "pk": 10,
+    "fields": {
+      "name": "採用情報",
+      "url": "http://recruit.fujimoto.com"
+    }
+  }
+]

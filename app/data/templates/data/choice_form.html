@@ -1,29 +1,14 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block head %}
-    <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
-    <link href="/static/bootstrap_datepicker_plus/css/datepicker-widget.css" type="text/css" media="all" rel="stylesheet">
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.9.0/moment-with-locales.min.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
-    <script type="text/javascript" src="/static/bootstrap_datepicker_plus/js/datepicker-widget.js"></script>
-{% endblock %}
-
-
-{% block title %}Data Register{% endblock %}
+{% block title %}Choice Form{% endblock %}
 
 {% block content %}
     <div class="container">
             <div class="bg-light p-3 p-sm-5 my-4 rounded">
-                <h1 class="display-4">データ登録</h1>
+                <h1 class="display-4">データ登録先選択</h1>
                 <hr class="my-4">
-                <p>データを登録してください。</p>
+                <p>データ登録先を選択してください。</p>
                 <form action="{% url 'data:choice_url' %}"  method="post" style="margin-top: 1rem">
                     {% csrf_token %}
                     <p>抽出前の画面に戻れます。</p>
@@ -50,6 +35,29 @@
             </div>
         </div>
     <div class="container">
+        <form action="{% url 'data:data_register' %}"  method="post">
+            {% csrf_token %}
+            <select name="select_form" class="form-select form-select-lg mb-3" aria-label=".form-select-lg example">
+                <option selected >
+                    データ登録先を選択してください。
+                </option>
+                {% for form in select_forms %}
+                    <option value="{{ form }}">{{ form }}</option>
+                {% endfor %}
+            </select>
+            <input hidden type="text" name="category" value="{{ category }}">
+            <input hidden type="text" name="url" value="{{ url }}">
+            <input hidden type="text" name="message" value="form">
+            {% if extract_html != "none" %}
+                <input hidden type="text" name="html" value="{{ extract_html }}">
+            {% else %}
+                <input hidden type="text" name="html" value="{{ html }}">
+            {% endif %}
+            <button type="submit" class="btn btn-secondary" style="margin-bottom: 3rem">
+                選択
+            </button>
+            <br>
+        </form>
         <form action="{% url 'data:choice_form' %}"  method="post">
             {% csrf_token %}
             <p>データを抽出できます。</p>
@@ -66,29 +74,14 @@
             </button>
             <br>
         </form>
-        <form action="{% url 'data:data_register' %}"  method="post">
-            {% csrf_token %}
-            {% for form in forms %}
-                {{ form }}
-                <br>
-            {% endfor %}
-<!--            <input hidden type="text" name="categories" value="{{ category }}">-->
-<!--            <input hidden type="text" name="html" value="{{ html }}">-->
-<!--            <input hidden type="text" name="url" value="{{ url }}">-->
-            <input hidden type="text" name="message" value="register">
-            <input hidden type="text" name="one_form" value="{{ one_form }}">
-            <button type="submit" class="btn btn-secondary" style="margin-bottom: 3rem">
-                登録
-            </button>
-            <br>
-        </form>
     </div>
 
     <div class="container">
-        <p>{{ url }}</p>
-        <hr>
-        <p>{{ html }}</p>
-        <hr>
-        <p>{{ html | safe | escape }}</p>
+        {% if extract_html != "none" %}
+            <p>{{ extract_html }}</p>
+            <p>{{ extract_html | safe | escape }}</p>
+        {% else %}
+            <p>{{ html | safe | escape }}</p>
+        {% endif %}
     </div>
 {% endblock %}

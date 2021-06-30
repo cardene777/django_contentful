@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block title %}Register{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="bg-light p-3 p-sm-5 my-4 rounded">
+            <h1 class="display-4">カテゴリ新規作成</h1>
+            <hr class="my-4">
+            <div class="col">
+                <form action="{% url 'data:register' %}"  method="post">
+                    {% csrf_token %}
+                    <input hidden type="text" name="hospital" value="{{ hospital }}">
+                    <input hidden type="text" name="message" value="button">
+                    <input hidden type="text" name="field" value="{{ field }}">
+                    <input hidden type="text" name="href" value="{{ url }}">
+                    <button type="submit" class="btn btn-outline-secondary" style="margin-bottom: 1rem">
+                        TOPに戻る
+                    </button>
+                </form>
+                <a href="{% url 'data:home' %}" class="btn"
+                   style="background-color: #77c7e2; color: #303f42;" tabindex="-1" role="button">
+                    選択に戻る
+                    <i class="fas fa-undo"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <form action="{% url 'data:create_category' %}"  method="post">
+            {% csrf_token %}
+            <select hidden name="hospital" class="form-control" id="hospital" required="">
+                <option value="{{ hospital }}" selected>{{ hospital }}</option>
+            </select>
+
+            <p>所属カテゴリ（任意）</p>
+            {{ forms.category }}
+            <br>
+            <p>カテゴリ名</p>
+            {{ forms.name }}
+            <textarea hidden name="url" cols="40" rows="10" class="form-control" id="url" placeholder="URL" required="">
+              {{ url }}
+            </textarea>
+            <input hidden type="text" name="hospitals" value="{{ hospital }}">
+            <input hidden type="text" name="message" value="add_category">
+            <input hidden type="text" name="field" value="{{ field }}">
+            <input hidden type="text" name="href" value="{{ url }}">
+            <input hidden type="text" name="html" value="{{ html }}">
+
+            <br>
+
+            <button type="submit" class="btn btn-secondary" style="margin-bottom: 1rem">
+                カテゴリ追加
+            </button>
+        </form>
+    </div>
+
+    <div class="container">
+        {{ html | safe | escape }}
+    </div>
+
+{% endblock %}

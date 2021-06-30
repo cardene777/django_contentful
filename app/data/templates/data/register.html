@@ -3,6 +3,12 @@
 {% block title %}Register{% endblock %}
 
 {% block content %}
+    {% if message == "done" %}
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+            <strong>登録完了！</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endif %}
     <div class="container">
         <div class="bg-light p-3 p-sm-5 my-4 rounded">
             <h1 class="display-4">データ登録</h1>
@@ -26,8 +32,7 @@
                             <i class="fas fa-undo"></i>
                         </a>
                     </div>
-                    <div class="col-4"
-                         style="display: flex; flex-direction: column; flex-wrap: wrap;">
+                    <div class="col-4">
                         <form action="{% url 'data:create_category' %}"  method="post">
                             {% csrf_token %}
                             <input hidden type="text" name="hospital" value="{{ hospital }}">
@@ -39,26 +44,14 @@
                                 カテゴリ追加
                             </button>
                         </form>
-                        <form action="{% url 'data:create_tag' %}"  method="post">
-                            {% csrf_token %}
-                            <input hidden type="text" name="hospital" value="{{ hospital }}">
-                            <input hidden type="text" name="message" value="category">
-                            <input hidden type="text" name="field" value="{{ field }}">
-                            <input hidden type="text" name="href" value="{{ url }}">
-                            <input hidden type="text" name="html" value="{{ html }}">
-                            <input hidden type="text" name="forms_name" value="{{ forms_name }}">
-                            <button type="submit" class="btn btn-outline-secondary" style="margin-bottom: 1rem">
-                                タグ追加
-                            </button>
-                        </form>
                     </div>
                     <div class="col-4">
                         <form action="{% url 'data:data_register' %}"  method="post">
                             {% csrf_token %}
                             <select name="form" class="form-select" aria-label="フォーム選択">
                                 <option selected>フォームを選択。</option>
-                                {% for f in form %}
-                                    <option value="{{ f }}">{{ f }}</option>
+                                {% for form in forms %}
+                                    <option value="{{ form }}">{{ form }}</option>
                                 {% endfor %}
                             </select>
                             <input hidden type="text" name="hospital" value="{{ hospital }}">
@@ -66,7 +59,6 @@
                             <input hidden type="text" name="field" value="{{ field }}">
                             <input hidden type="text" name="href" value="{{ url }}">
                             <input hidden type="text" name="html" value="{{ html }}">
-                            <input hidden type="text" name="forms_name" value="{{ forms_name }}">
                             <button type="submit" class="btn btn-outline-secondary" style="margin-top: 1rem">
                                 データ登録
                             </button>
@@ -78,27 +70,44 @@
     </div>
 
     <div class="container">
-        <form action="{% url 'data:data_register' %}"  method="post">
+        <form action="{% url 'data:register' %}"  method="post">
             {% csrf_token %}
+            <label for="code" class="form-label">スクレイピング</label>
+            <input type="text" name="code" id="code" class="form-control">
 
-            {{ forms.as_p }}
-
-            <p>{{ url }}</p>
-
-            <input hidden type="text" name="hospitals" value="{{ hospital }}">
-            <input hidden type="text" name="message" value="data_register">
+            <input hidden type="text" name="hospital" value="{{ hospital }}">
+            <input hidden type="text" name="message" value="code">
             <input hidden type="text" name="field" value="{{ field }}">
             <input hidden type="text" name="href" value="{{ url }}">
             <input hidden type="text" name="html" value="{{ html }}">
-            <input hidden type="text" name="forms_name" value="{{ forms_name }}">
-
-            <br>
-
-            <button type="submit" class="btn btn-secondary" style="margin-bottom: 1rem">
-                データ登録
+            <button type="submit" class="btn btn-outline-success" style="margin-top: 1rem; margin-bottom: 1rem">
+                スクレイピング
             </button>
         </form>
     </div>
+
+    <hr>
+
+    <div class="container">
+        <div class="row">
+            {% for href, text in a_dict.items %}
+                <div class="col-3">
+                    <form action="{% url 'data:register' %}"  method="post">
+                        {% csrf_token %}
+                        <input hidden type="text" name="hospital" value="{{ hospital }}">
+                        <input hidden type="text" name="message" value="button">
+                        <input hidden type="text" name="field" value="{{ field }}">
+                        <input hidden type="text" name="href" value="{{ href }}">
+                        <button type="submit" class="btn btn-outline-secondary" style="margin-bottom: 1rem">
+                            {{ text }}
+                        </button>
+                    </form>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <hr>
 
     <div class="container">
         {{ html | safe | escape }}

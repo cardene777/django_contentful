@@ -6,6 +6,56 @@ from django.utils import timezone
 csv.field_size_limit(sys.maxsize)
 
 
+class Data(models.Model):
+    """
+    hospital page data list
+    """
+
+    class Meta:
+        verbose_name = "データ"
+        verbose_name_plural = "データ"
+
+    url = models.TextField(
+        verbose_name="URL",
+    )
+
+    html = models.TextField(
+        verbose_name="HTML"
+    )
+
+    CHECK_CHOICE = (
+        ("ok", "ok"),
+        ("no", "no")
+    )
+
+    check = models.CharField(
+        verbose_name="振り分け判定",
+        max_length=10,
+        choices=CHECK_CHOICE
+    )
+
+    def __str__(self):
+        return str(self.url)
+
+
+class Tag(models.Model):
+    """
+    tag data
+    """
+
+    class Meta:
+        verbose_name = "タグ"
+        verbose_name_plural = "タグ"
+
+    name = models.CharField(
+        verbose_name="タグ",
+        max_length=50
+    )
+
+    def __str__(self):
+        return self.name
+
+
 class Hospital(models.Model):
     """
     hospital name
@@ -44,27 +94,23 @@ class Category(models.Model):
         on_delete=models.CASCADE
     )
 
+    category = models.OneToOneField(
+        "self",
+        verbose_name="関連カテゴリ",
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+        related_name="sub_category"
+    )
+
     name = models.CharField(
         verbose_name="カテゴリ名",
-        max_length=100
+        max_length=100,
+        unique=True
     )
 
     url = models.TextField(
         verbose_name="URL",
-    )
-
-    def __str__(self):
-        return self.name
-
-
-class Tag(models.Model):
-    class Meta:
-        verbose_name = "タグ"
-        verbose_name_plural = "タグ"
-
-    name = models.CharField(
-        verbose_name="タグ",
-        max_length=50
     )
 
     def __str__(self):
@@ -80,11 +126,42 @@ class Page(models.Model):
         verbose_name = "ページ"
         verbose_name_plural = "ページ"
 
-    hospital = models.ForeignKey(
-        Hospital,
-        verbose_name="関連病院名",
+    category = models.OneToOneField(
+        Category,
+        verbose_name="関連カテゴリ",
         on_delete=models.CASCADE
     )
+
+    title = models.CharField(
+        verbose_name="ページタイトル",
+        max_length=200
+    )
+
+    html = models.TextField(
+        verbose_name="HTML",
+    )
+
+    tag = models.ManyToManyField(
+        Tag,
+        verbose_name="タグ",
+        blank=True
+    )
+
+    url = models.TextField(
+        verbose_name="URL",
+    )
+
+    def __str__(self):
+        return self.title
+
+
+class Group(models.Model):
+    """
+    group data
+    """
+    class Meta:
+        verbose_name = "グループ"
+        verbose_name_plural = "グループ"
 
     category = models.ForeignKey(
         Category,
@@ -92,8 +169,15 @@ class Page(models.Model):
         on_delete=models.CASCADE
     )
 
-    html = models.TextField(
-        verbose_name="HTML",
+    name = models.CharField(
+        verbose_name="グループ名",
+        max_length=200
+    )
+
+    page = models.ForeignKey(
+        Page,
+        verbose_name="ページ",
+        on_delete=models.CASCADE
     )
 
     url = models.TextField(
@@ -107,39 +191,43 @@ class Page(models.Model):
     )
 
     def __str__(self):
-        return self.html
+        return self.name
 
 
-class Data(models.Model):
+class Element(models.Model):
     """
-    hospital page data list
+    element data
     """
-
     class Meta:
-        verbose_name = "データ"
-        verbose_name_plural = "データ"
+        verbose_name = "要素"
+        verbose_name_plural = "要素"
+
+    group = models.ForeignKey(
+        Group,
+        verbose_name="関連グループ名",
+        on_delete=models.CASCADE
+    )
+
+    title = models.CharField(
+        verbose_name="タイトル",
+        max_length=200
+    )
+
+    html = models.TextField(
+        verbose_name="内容"
+    )
 
     url = models.TextField(
         verbose_name="URL",
     )
 
-    html = models.TextField(
-        verbose_name="HTML"
-    )
-
-    CHECK_CHOICE = (
-        ("ok", "ok"),
-        ("no", "no")
-    )
-
-    check = models.CharField(
-        verbose_name="振り分け判定",
-        max_length=10,
-        choices=CHECK_CHOICE
+    tag = models.ManyToManyField(
+        Tag,
+        verbose_name="タグ"
     )
 
     def __str__(self):
-        return f"{self.url} {self.html}"
+        return self.title
 
 
 class Doctor(models.Model):
@@ -151,15 +239,10 @@ class Doctor(models.Model):
         verbose_name = "医師情報"
         verbose_name_plural = "医師情報"
 
-    hospital = models.ForeignKey(
-        Hospital,
-        verbose_name="関連病院名",
+    group = models.ForeignKey(
+        Group,
+        verbose_name="関連グループ名",
         on_delete=models.CASCADE,
-    )
-
-    title = models.CharField(
-        verbose_name="肩書き",
-        max_length=200,
     )
 
     name = models.CharField(
@@ -167,152 +250,149 @@ class Doctor(models.Model):
         max_length=50,
     )
 
+    title = models.CharField(
+        verbose_name="肩書き",
+        max_length=250,
+    )
+
     profile = models.TextField(
         verbose_name="プロフィール",
     )
 
-    image = models.URLField(
-        verbose_name="医師画像",
-        max_length=250
-    )
-
-    def __str__(self):
-        return self.name
-
-
-class DepartmentSchedule(models.Model):
-    """
-    Consultation Time
-    """
-
-    class Meta:
-        verbose_name = "診療時間と担当医師"
-        verbose_name_plural = "診療時間と担当医師"
-
-    hospital = models.ForeignKey(
-        Hospital,
-        verbose_name="関連病院名",
-        on_delete=models.CASCADE,
-    )
-
-    doctor = models.ForeignKey(
-        Doctor,
-        verbose_name="医師",
-        on_delete=models.CASCADE,
-    )
-
-    CHOICES_WEEK = (
-        ("月曜日", "Monday"),
-        ("火曜日", "Tuesday"),
-        ("水曜日", "Wednesday"),
-        ("木曜日", "Thursday"),
-        ("金曜日", "Friday"),
-    )
-
-    week = models.CharField(
-        verbose_name="曜日",
-        max_length=50,
-        choices=CHOICES_WEEK
-    )
-
-    CHOICES_AM_PM = (
-        ("午前", "午前"),
-        ("午後", "午後"),
-    )
-
-    AP = models.CharField(
-        verbose_name="午前・午後",
-        max_length=50,
-        choices=CHOICES_AM_PM
-    )
-
-    def __str__(self):
-        return str(self.doctor)
-
-
-class News(models.Model):
-    class Meta:
-        verbose_name = "ニュース"
-        verbose_name_plural = "ニュース"
-
-    hospital = models.ForeignKey(
-        Hospital,
-        verbose_name="関連病院名",
-        on_delete=models.CASCADE
-    )
-
-    category = models.ForeignKey(
-        Category,
-        verbose_name="関連カテゴリ",
-        on_delete=models.CASCADE
-    )
-
-    INFORMATION_TYPE = (
-        ("information", "お知らせ"),
-        ("media", "メディア"),
-        ("close_substitute", "休診・代診"),
-        ("free", "無料講座")
-    )
-
-    type = models.CharField(
-        verbose_name="お知らせ種類",
-        max_length=100,
-        choices=INFORMATION_TYPE
-    )
-
-    html = models.TextField(
-        verbose_name="HTML",
+    image = models.ImageField(
+        verbose_name="医師画像URL",
+        upload_to="images/"
     )
 
     url = models.TextField(
         verbose_name="URL",
     )
 
-    def __str__(self):
-        return self.html
-
-
-class DepartmentTime(models.Model):
-    class Meta:
-        verbose_name = "時間"
-        verbose_name_plural = "時間"
-
-    hospital = models.ForeignKey(
-        Hospital,
-        verbose_name="関連病院名",
-        on_delete=models.CASCADE
-    )
-
-    KIND_CHOICES = (
-        ("reception", "受付時間"),
-        ("diagnosis", "診療時間")
-    )
-
-    kind = models.CharField(
-        verbose_name="種類",
-        choices=KIND_CHOICES,
-        max_length=10
-    )
-
-    am_start = models.TimeField(
-        verbose_name="午前開始時間",
-        default=timezone.datetime.now()
-    )
-
-    am_end = models.TimeField(
-        verbose_name="午前終了時間",
-        default=timezone.datetime.now()
-    )
-
-    pm_start = models.TimeField(
-        verbose_name="午後開始時間",
-        default=timezone.datetime.now()
-    )
-
-    pm_end = models.TimeField(
-        verbose_name="午後終了時間",
-        default=timezone.datetime.now()
+    tag = models.ManyToManyField(
+        Tag,
+        verbose_name="タグ"
     )
 
     def __str__(self):
         return self.name
+
+
+class OutpatientDoctor(models.Model):
+    """
+    outpatient data
+    """
+    class Meta:
+        verbose_name = "外来担当医師"
+        verbose_name_plural = "外来担当医師"
+
+    group = models.ForeignKey(
+        Group,
+        verbose_name="関連グループ",
+        on_delete=models.CASCADE,
+    )
+
+    doctor = models.ManyToManyField(
+        Doctor,
+        verbose_name="医師名",
+    )
+
+    DAY_WEEK_CHOICE = (
+        (1, "月曜日"),
+        (2, "火曜日"),
+        (3, "水曜日"),
+        (4, "木曜日"),
+        (5, "金曜日"),
+    )
+
+    day_week = models.CharField(
+        verbose_name="曜日",
+        max_length=10,
+        choices=DAY_WEEK_CHOICE
+    )
+
+    AM_PM_CHOICE = (
+        (1, "午前"),
+        (2, "午後")
+    )
+
+    am_pm = models.CharField(
+        verbose_name="午前・午後",
+        max_length=10,
+        choices=AM_PM_CHOICE
+    )
+
+    other = models.TextField(
+        verbose_name="補足"
+    )
+
+    url = models.TextField(
+        verbose_name="URL",
+    )
+
+    tag = models.ManyToManyField(
+        Tag,
+        verbose_name="タグ"
+    )
+
+    def __str__(self):
+        return self.day_week
+
+
+class DepartmentTimeSchedule(models.Model):
+    """
+    Department Time Schedule
+    """
+
+    class Meta:
+        verbose_name = "受付・診療時間"
+        verbose_name_plural = "受付・診療時間"
+
+    group = models.ForeignKey(
+        Group,
+        verbose_name="関連グループ",
+        on_delete=models.CASCADE,
+    )
+
+    CHECK_CHOICES = (
+        ("受付", 1),
+        ("診療", 2),
+    )
+
+    check = models.CharField(
+        verbose_name="受付・診療選択",
+        max_length=10,
+        choices=CHECK_CHOICES
+    )
+
+    start_time = models.TimeField(
+        verbose_name="開始時間",
+        default=0
+    )
+
+    end_time = models.TimeField(
+        verbose_name="終了時間",
+        default=0
+    )
+
+    TYPE_CHOICES = (
+        ("初診", 1),
+        ("再診", 2),
+    )
+
+    type = models.CharField(
+        verbose_name="初診・再診",
+        max_length=10,
+        choices=TYPE_CHOICES
+    )
+
+    url = models.TextField(
+        verbose_name="URL",
+    )
+
+    tag = models.ManyToManyField(
+        Tag,
+        verbose_name="タグ",
+    )
+
+    def __str__(self):
+        return str(self.check)

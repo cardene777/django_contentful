@@ -1,16 +1,66 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 
-{% block title %}Home{% endblock %}
+{% block title %}Choice{% endblock %}
 
 {% block content %}
     <div class="container">
-        <div class="bg-light p-3 p-sm-5 my-4 rounded">
-            <h1 class="display-4">Home</h1>
-            <hr class="my-4">
-            <p>ホーム</p>
+            <div class="bg-light p-3 p-sm-5 my-4 rounded">
+                <h1 class="display-4">選択</h1>
+                <hr class="my-4">
+                <p>選択してください。</p>
+            </div>
         </div>
-    </div>
     <div class="container">
-        <h2 style="margin-top: 2rem"><strong>ホーム</strong></h2>
+        <form action="{% url 'data:register' %}"  method="post">
+            {% csrf_token %}
+            <select name="hospital" class="form-select form-select-lg mb-3" aria-label=".form-select-lg example">
+                <option selected >
+                    病院を選択してください。
+                </option>
+                {% for hospital in hospitals %}
+                    <option value="{{ hospital }}">{{ hospital }}</option>
+                {% endfor %}
+            </select>
+            <select name="field" class="form-select form-select-lg mb-3" aria-label=".form-select-lg example">
+            </select>
+            <input hidden type="text" name="message" value="home">
+            <button type="submit" class="btn btn-secondary" style="margin-bottom: 3rem">
+                選択
+            </button>
+            <br>
+        </form>
     </div>
+
+    <script type="text/javascript">
+        let FieldArray = [];
+        FieldArray[''] = new Array('フィールドを選択してください。');
+
+        // 病院リスト
+        let hospitals_list = JSON.parse('{{ hospitals_list|safe }}');
+
+        // // フィールド辞書
+        let fields_dict = JSON.parse('{{ fields_dict|safe }}');
+
+        console.log(hospitals_list)
+        console.log(fields_dict)
+
+        for (let i = 0; i < hospitals_list.length; i++) {
+          FieldArray[hospitals_list[i]] = fields_dict[i]
+        }
+
+        document.getElementsByName('hospital')[0].onchange = function () {
+            let hos = this.value;
+            let elm = document.getElementsByName('field')[0];
+            elm.options.length = 0;
+            for (let i = 0; i < FieldArray[hos].length; i++) {
+                let opt = document.createElement('option');
+                opt.value = FieldArray[hos][i];
+                opt.textContent = FieldArray[hos][i];
+                elm.appendChild(opt);
+            }
+        };
+        window.onload = function () {
+            document.getElementsByName('hospital')[0].onchange(undefined);
+        };
+    </script>
 {% endblock %}

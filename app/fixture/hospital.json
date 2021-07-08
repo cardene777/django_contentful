@@ -4,7 +4,7 @@
     "pk": 1,
     "fields": {
       "name": "藤元メディカルシステム",
-      "url": "http://fujimoto.com"
+      "url": "http://www.fujimoto.com/"
     }
   },
   {
@@ -12,7 +12,7 @@
     "pk": 2,
     "fields": {
       "name": "藤元総合病院",
-      "url": "http://fgh.fujimoto.com"
+      "url": "http://fgh.fujimoto.com/"
     }
   },
   {
@@ -20,7 +20,7 @@
     "pk": 3,
     "fields": {
       "name": "藤元病院",
-      "url": "http://fujimoto.or.jp/fujimoto"
+      "url": "http://www.fujimoto.or.jp/fujimoto/"
     }
   },
   {
@@ -28,7 +28,7 @@
     "pk": 4,
     "fields": {
       "name": "大吾病院",
-      "url": "http://fujimoto.or.jp/daigo"
+      "url": "http://www.fujimoto.or.jp/daigo"
     }
   },
   {
@@ -36,7 +36,7 @@
     "pk": 5,
     "fields": {
       "name": "星井眼科",
-      "url": "http://hoshii.fujimoto.com"
+      "url": "http://hoshii.fujimoto.com/"
     }
   },
   {
@@ -44,7 +44,7 @@
     "pk": 6,
     "fields": {
       "name": "グリーンホーム",
-      "url": "http://fujimoto.or.jp/green"
+      "url": "http://www.fujimoto.or.jp/green/"
     }
   },
   {
@@ -52,7 +52,7 @@
     "pk": 7,
     "fields": {
       "name": "藤元メディカルシステム付属医療専門学校",
-      "url": "http://fujimoto.ac.jp"
+      "url": "http://fujimoto.ac.jp/"
     }
   },
   {
@@ -77,6 +77,54 @@
     "fields": {
       "name": "採用情報",
       "url": "http://recruit.fujimoto.com"
+    }
+  },
+  {
+    "model": "data.hospital",
+    "pk": 11,
+    "fields": {
+      "name": "星空の都なかごう",
+      "url": "http://www.joryokukai.com/nakagoen/"
+    }
+  },
+  {
+    "model": "data.hospital",
+    "pk": 12,
+    "fields": {
+      "name": "星空の都みまた",
+      "url": "http://www.joryokukai.com/sankoen/"
+    }
+  },
+  {
+    "model": "data.hospital",
+    "pk": 13,
+    "fields": {
+      "name": "星空の都さどわら",
+      "url": "http://www.ichijukai.com/syokoen/"
+    }
+  },
+  {
+    "model": "data.hospital",
+    "pk": 14,
+    "fields": {
+      "name": "星空の都かみながえ",
+      "url": "http://www.joryokukai.com/sazankaen/"
+    }
+  },
+  {
+    "model": "data.hospital",
+    "pk": 15,
+    "fields": {
+      "name": "星空の都ポピー保育園",
+      "url": "http://www.joryokukai.com/poppy/"
+    }
+  },
+  {
+    "model": "data.hospital",
+    "pk": 16,
+    "fields": {
+      "name": "星空の都みやざき",
+      "url": "http://www.ichijukai.com/hyugaen/"
     }
   }
 ]

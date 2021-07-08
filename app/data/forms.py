@@ -1,5 +1,5 @@
 from django import forms
-from .models import Category, Page, Group, Tag, Element, Doctor, OutpatientDoctor, DepartmentTimeSchedule
+from .models import Category, Page, Tag, Element, Doctor, OutpatientDoctor, DepartmentTimeSchedule
 
 
 class CSVUploadForm(forms.Form):
@@ -63,35 +63,6 @@ class PageForm(forms.ModelForm):
         self.fields['url'].widget.attrs['placeholder'] = 'URL'
 
 
-class GroupForm(forms.ModelForm):
-    class Meta:
-        model = Group
-        fields = ('category', 'name', 'page', 'url', 'tag')
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['category'].widget.attrs['class'] = 'form-control'
-        self.fields['category'].widget.attrs['id'] = 'category'
-        self.fields['category'].widget.attrs['name'] = 'category'
-
-        self.fields['name'].widget.attrs['class'] = 'form-control text'
-        self.fields['name'].widget.attrs['id'] = 'name'
-        self.fields['name'].widget.attrs['name'] = 'name'
-        self.fields['name'].widget.attrs['placeholder'] = 'グループ名'
-
-        self.fields['page'].widget.attrs['class'] = 'form-control text'
-        self.fields['page'].widget.attrs['id'] = 'page'
-        self.fields['page'].widget.attrs['name'] = 'page'
-
-        self.fields['url'].widget.attrs['class'] = 'form-control'
-        self.fields['url'].widget.attrs['id'] = 'url'
-        self.fields['url'].widget.attrs['name'] = 'url'
-        self.fields['url'].widget.attrs['placeholder'] = 'URL'
-
-        self.fields['tag'].widget.attrs['class'] = 'form-control'
-        self.fields['tag'].widget.attrs['id'] = 'tag'
-        self.fields['tag'].widget.attrs['name'] = 'tag'
-
 
 class TagForm(forms.ModelForm):
     class Meta:
@@ -109,13 +80,13 @@ class TagForm(forms.ModelForm):
 class ElementForm(forms.ModelForm):
     class Meta:
         model = Element
-        fields = ('group', 'title', 'html', 'url', 'tag')
+        fields = ('category', 'title', 'html', 'url', 'tag')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['group'].widget.attrs['class'] = 'form-control text'
-        self.fields['group'].widget.attrs['id'] = 'group'
-        self.fields['group'].widget.attrs['name'] = 'group'
+        self.fields['category'].widget.attrs['class'] = 'form-control text'
+        self.fields['category'].widget.attrs['id'] = 'category'
+        self.fields['category'].widget.attrs['name'] = 'category'
 
         self.fields['title'].widget.attrs['class'] = 'form-control text'
         self.fields['title'].widget.attrs['id'] = 'title'
@@ -140,13 +111,13 @@ class ElementForm(forms.ModelForm):
 class DoctorForm(forms.ModelForm):
     class Meta:
         model = Doctor
-        fields = ('group', 'name', 'title', 'profile', 'image', 'url', 'tag')
+        fields = ('category', 'name', 'title', 'profile', 'url', 'tag')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['group'].widget.attrs['class'] = 'form-control'
-        self.fields['group'].widget.attrs['id'] = 'group'
-        self.fields['group'].widget.attrs['name'] = 'group'
+        self.fields['category'].widget.attrs['class'] = 'form-control'
+        self.fields['category'].widget.attrs['id'] = 'category'
+        self.fields['category'].widget.attrs['name'] = 'category'
 
         self.fields['name'].widget.attrs['class'] = 'form-control text'
         self.fields['name'].widget.attrs['id'] = 'name'
@@ -163,11 +134,6 @@ class DoctorForm(forms.ModelForm):
         self.fields['profile'].widget.attrs['name'] = 'profile'
         self.fields['profile'].widget.attrs['placeholder'] = 'プロフィール'
 
-        self.fields['image'].widget.attrs['class'] = 'form-control'
-        self.fields['image'].widget.attrs['id'] = 'image'
-        self.fields['image'].widget.attrs['name'] = 'image'
-        self.fields['image'].widget.attrs['placeholder'] = '医師画像URL'
-
         self.fields['url'].widget.attrs['class'] = 'form-control text'
         self.fields['url'].widget.attrs['id'] = 'url'
         self.fields['url'].widget.attrs['name'] = 'url'
@@ -181,13 +147,13 @@ class DoctorForm(forms.ModelForm):
 class OutpatientDoctorForm(forms.ModelForm):
     class Meta:
         model = OutpatientDoctor
-        fields = ('group', 'doctor', 'day_week', 'am_pm', 'other', 'url', 'tag')
+        fields = ('category', 'doctor', 'day_week', 'am_pm', 'other', 'url', 'tag')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['group'].widget.attrs['class'] = 'form-control'
-        self.fields['group'].widget.attrs['id'] = 'group'
-        self.fields['group'].widget.attrs['name'] = 'group'
+        self.fields['category'].widget.attrs['class'] = 'form-control'
+        self.fields['category'].widget.attrs['id'] = 'category'
+        self.fields['category'].widget.attrs['name'] = 'category'
 
         self.fields['doctor'].widget.attrs['class'] = 'form-control text'
         self.fields['doctor'].widget.attrs['id'] = 'doctor'
@@ -221,14 +187,14 @@ class OutpatientDoctorForm(forms.ModelForm):
 class DepartmentTimeScheduleForm(forms.ModelForm):
     class Meta:
         model = DepartmentTimeSchedule
-        fields = ('group', 'check', 'start_time', 'end_time', 'type', 'url', 'tag')
+        fields = ('category', 'check', 'start_time', 'end_time', 'type', 'url', 'tag')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['group'].widget.attrs['class'] = 'form-control'
-        self.fields['group'].widget.attrs['id'] = 'group'
-        self.fields['group'].widget.attrs['name'] = 'group'
-        self.fields['group'].widget.attrs['placeholder'] = 'グループ名'
+        self.fields['category'].widget.attrs['class'] = 'form-control'
+        self.fields['category'].widget.attrs['id'] = 'category'
+        self.fields['category'].widget.attrs['name'] = 'category'
+        self.fields['category'].widget.attrs['placeholder'] = 'グループ名'
 
         self.fields['check'].widget.attrs['class'] = 'form-control'
         self.fields['check'].widget.attrs['id'] = 'check'

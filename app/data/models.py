@@ -94,7 +94,7 @@ class Category(models.Model):
         on_delete=models.CASCADE
     )
 
-    category = models.OneToOneField(
+    category = models.ForeignKey(
         "self",
         verbose_name="関連カテゴリ",
         on_delete=models.CASCADE,
@@ -134,7 +134,9 @@ class Page(models.Model):
 
     title = models.CharField(
         verbose_name="ページタイトル",
-        max_length=200
+        max_length=200,
+        blank=True,
+        null=True,
     )
 
     html = models.TextField(
@@ -144,7 +146,8 @@ class Page(models.Model):
     tag = models.ManyToManyField(
         Tag,
         verbose_name="タグ",
-        blank=True
+        blank=True,
+        null=True,
     )
 
     url = models.TextField(
@@ -152,46 +155,40 @@ class Page(models.Model):
     )
 
     def __str__(self):
-        return self.title
+        return self.html
 
 
-class Group(models.Model):
-    """
-    group data
-    """
-    class Meta:
-        verbose_name = "グループ"
-        verbose_name_plural = "グループ"
-
-    category = models.ForeignKey(
-        Category,
-        verbose_name="関連カテゴリ",
-        on_delete=models.CASCADE
-    )
-
-    name = models.CharField(
-        verbose_name="グループ名",
-        max_length=200
-    )
-
-    page = models.ForeignKey(
-        Page,
-        verbose_name="ページ",
-        on_delete=models.CASCADE
-    )
-
-    url = models.TextField(
-        verbose_name="URL",
-    )
-
-    tag = models.ManyToManyField(
-        Tag,
-        verbose_name="タグ",
-        blank=True
-    )
-
-    def __str__(self):
-        return self.name
+# class Group(models.Model):
+#     """
+#     group data
+#     """
+#     class Meta:
+#         verbose_name = "グループ"
+#         verbose_name_plural = "グループ"
+#
+#     category = models.ForeignKey(
+#         Category,
+#         verbose_name="関連カテゴリ",
+#         on_delete=models.CASCADE
+#     )
+#
+#     name = models.CharField(
+#         verbose_name="グループ名",
+#         max_length=200
+#     )
+#
+#     url = models.TextField(
+#         verbose_name="URL",
+#     )
+#
+#     tag = models.ManyToManyField(
+#         Tag,
+#         verbose_name="タグ",
+#         blank=True
+#     )
+#
+#     def __str__(self):
+#         return self.name
 
 
 class Element(models.Model):
@@ -202,15 +199,17 @@ class Element(models.Model):
         verbose_name = "要素"
         verbose_name_plural = "要素"
 
-    group = models.ForeignKey(
-        Group,
-        verbose_name="関連グループ名",
+    category = models.ForeignKey(
+        Category,
+        verbose_name="関連カテゴリ名",
         on_delete=models.CASCADE
     )
 
     title = models.CharField(
         verbose_name="タイトル",
-        max_length=200
+        max_length=200,
+        blank=True,
+        null=True,
     )
 
     html = models.TextField(
@@ -223,11 +222,13 @@ class Element(models.Model):
 
     tag = models.ManyToManyField(
         Tag,
-        verbose_name="タグ"
+        verbose_name="タグ",
+        blank=True,
+        null=True,
     )
 
     def __str__(self):
-        return self.title
+        return self.html
 
 
 class Doctor(models.Model):
@@ -239,10 +240,10 @@ class Doctor(models.Model):
         verbose_name = "医師情報"
         verbose_name_plural = "医師情報"
 
-    group = models.ForeignKey(
-        Group,
-        verbose_name="関連グループ名",
-        on_delete=models.CASCADE,
+    category = models.ForeignKey(
+        Category,
+        verbose_name="関連カテゴリ名",
+        on_delete=models.CASCADE
     )
 
     name = models.CharField(
@@ -259,18 +260,15 @@ class Doctor(models.Model):
         verbose_name="プロフィール",
     )
 
-    image = models.ImageField(
-        verbose_name="医師画像URL",
-        upload_to="images/"
-    )
-
     url = models.TextField(
         verbose_name="URL",
     )
 
     tag = models.ManyToManyField(
         Tag,
-        verbose_name="タグ"
+        verbose_name="タグ",
+        blank=True,
+        null=True,
     )
 
     def __str__(self):
@@ -285,10 +283,10 @@ class OutpatientDoctor(models.Model):
         verbose_name = "外来担当医師"
         verbose_name_plural = "外来担当医師"
 
-    group = models.ForeignKey(
-        Group,
-        verbose_name="関連グループ",
-        on_delete=models.CASCADE,
+    category = models.ForeignKey(
+        Category,
+        verbose_name="関連カテゴリ名",
+        on_delete=models.CASCADE
     )
 
     doctor = models.ManyToManyField(
@@ -331,11 +329,13 @@ class OutpatientDoctor(models.Model):
 
     tag = models.ManyToManyField(
         Tag,
-        verbose_name="タグ"
+        verbose_name="タグ",
+        blank=True,
+        null=True,
     )
 
     def __str__(self):
-        return self.day_week
+        return self.doctor
 
 
 class DepartmentTimeSchedule(models.Model):
@@ -347,10 +347,10 @@ class DepartmentTimeSchedule(models.Model):
         verbose_name = "受付・診療時間"
         verbose_name_plural = "受付・診療時間"
 
-    group = models.ForeignKey(
-        Group,
-        verbose_name="関連グループ",
-        on_delete=models.CASCADE,
+    category = models.ForeignKey(
+        Category,
+        verbose_name="関連カテゴリ名",
+        on_delete=models.CASCADE
     )
 
     CHECK_CHOICES = (
@@ -392,6 +392,8 @@ class DepartmentTimeSchedule(models.Model):
     tag = models.ManyToManyField(
         Tag,
         verbose_name="タグ",
+        blank=True,
+        null=True,
     )
 
     def __str__(self):
